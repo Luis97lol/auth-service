@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("./conf/.env")
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
