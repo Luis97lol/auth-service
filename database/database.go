@@ -20,12 +20,18 @@ var db *sql.DB
 var connStr string
 
 func init() {
-	defer db.Close()
 	connStr = fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"))
-	if err := open(); err != nil {
+	if err := test(); err != nil {
 		log.Fatalf("Error initializing database connection: %s", err.Error())
 	}
+}
+
+func test() error {
+	defer db.Close()
+	var err error
+	db, err = sql.Open("postgres", connStr)
+	return err
 }
 
 func open() error {
