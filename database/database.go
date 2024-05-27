@@ -21,8 +21,8 @@ var connStr string
 
 func init() {
 	defer db.Close()
-	connStr = fmt.Sprintf("user=%s password=%s dbname=%s host=%s sslmode=disable",
-		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"))
+	connStr = fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
+		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"))
 	if err := open(); err != nil {
 		log.Fatalf("Error initializing database connection: %s", err.Error())
 	}
