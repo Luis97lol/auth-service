@@ -6,12 +6,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/Luis97lol/auth-service/auth"
 	"github.com/go-redis/redis/v8"
 )
 
 var redisClient *redis.Client
 
-func InitRedis() {
+func init() {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_ADDR"),
 		Password: os.Getenv("REDIS_PASSWORD"),
@@ -19,9 +20,9 @@ func InitRedis() {
 	})
 }
 
-func GenerateToken(username string) (string, error) {
-	token := fmt.Sprintf("token:%s", username)
-	err := redisClient.Set(context.Background(), token, username, 5*time.Minute).Err()
+func GenerateToken(userId string) (string, error) {
+	token := fmt.Sprintf("token:%s", auth.GenerateJWT(auth.User{Id: userId}))
+	err := redisClient.Set(context.Background(), token, userId, 5*time.Minute).Err()
 	if err != nil {
 		return "", err
 	}

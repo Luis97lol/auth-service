@@ -9,6 +9,13 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	authtoken := r.Header.Get("Authorization")
+	if authtoken != "" {
+		http.Error(w, "Token provided", http.StatusBadRequest)
+		return
+	}
+
 	// Parse request body
 	var credentials database.Credentials
 	err := json.NewDecoder(r.Body).Decode(&credentials)
@@ -18,7 +25,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate user credentials against database
-	validUser, err := database.ValidateUser(credentials.Username, credentials.Password)
+	validUser, err := database.ValidateUser(credentials.Organization, credentials.Username, credentials.Password)
 	if err != nil {
 		http.Error(w, "Error validating user credentials", http.StatusInternalServerError)
 		return
@@ -37,6 +44,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with token
 	response := map[string]string{"token": token}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
