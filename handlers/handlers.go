@@ -48,6 +48,34 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+
+	authtoken := r.Header.Get("Authorization")
+	if authtoken != "" {
+		http.Error(w, "Token provided", http.StatusBadRequest)
+		return
+	}
+
+	// Parse request body
+	var credentials database.Credentials
+	err := json.NewDecoder(r.Body).Decode(&credentials)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate user credentials against database
+	err = database.InsertUser(credentials.Organization, credentials.Username, credentials.Password)
+	if err != nil {
+		http.Error(w, "Error creating user credentials", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with token
+	response := map[string]string{"response": "User created successfully"}
+	json.NewEncoder(w).Encode(response)
+}
+
 func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 	// Read token from Authorization header
 	token := r.Header.Get("Authorization")
