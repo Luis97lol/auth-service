@@ -38,6 +38,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate JWT token and save to Redis
 	token, err := redis.GenerateToken(credentials.Username)
 	if err != nil {
+		println("Error generating token: ", err.Error())
 		http.Error(w, "Error generating token", http.StatusInternalServerError)
 		return
 	}
