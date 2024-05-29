@@ -19,6 +19,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/login", handlers.LoginHandler).Methods("POST")
+	r.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
 	r.HandleFunc("/validate", handlers.ValidateHandler).Methods("GET")
 
 	port := os.Getenv("SERVER_PORT")
