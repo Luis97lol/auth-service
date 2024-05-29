@@ -78,6 +78,7 @@ func InsertUser(oid, username, password string) error {
 	// Insert the new user into the database
 	_, err = db.Exec("INSERT INTO users (oid, username, password) VALUES ($1, $2, $3)", oid, username, hashedPassword)
 	if err != nil {
+		println("Error al insertar usuario: ", err.Error())
 		return err
 	}
 
