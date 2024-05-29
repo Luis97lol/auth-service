@@ -40,6 +40,7 @@ func ValidateUser(oid, username, password string) (bool, error) {
 	var storedPassword string
 	err := db.QueryRow("SELECT password FROM users WHERE oid=$1, username=$2", oid, username).Scan(&storedPassword)
 	if err != nil {
+		println("Error al consultar usuario: ", err.Error())
 		if err == sql.ErrNoRows {
 			return false, nil
 		}
@@ -49,6 +50,7 @@ func ValidateUser(oid, username, password string) (bool, error) {
 	// Compare the provided password with the stored hashed password
 	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(password))
 	if err != nil {
+		println("Error al comparar hashes: ", err.Error())
 		// Password does not match
 		if err == bcrypt.ErrMismatchedHashAndPassword {
 			return false, nil
