@@ -30,15 +30,21 @@ func open() error {
 	return nil
 }
 
+func closeDB() {
+	if db != nil {
+		db.Close()
+	}
+}
+
 func ValidateUser(oid, username, password string) (bool, error) {
-	defer db.Close()
 	if err := open(); err != nil {
 		fmt.Printf("Error initializing database connection: %s", err.Error())
 		return false, err
 	}
+	defer closeDB() // Cierra la conexión solo si se abrió correctamente
 
 	var storedPassword string
-	err := db.QueryRow("SELECT password FROM credentials WHERE oid=$1, username=$2", oid, username).Scan(&storedPassword)
+	err := db.QueryRow("SELECT password FROM credentials WHERE oid=$1 AND username=$2", oid, username).Scan(&storedPassword)
 	if err != nil {
 		println("Error al consultar usuario: ", err.Error())
 		if err == sql.ErrNoRows {
@@ -63,11 +69,11 @@ func ValidateUser(oid, username, password string) (bool, error) {
 }
 
 func InsertUser(oid, username, password string) error {
-	defer db.Close()
 	if err := open(); err != nil {
 		fmt.Errorf("No se pudo establecer conexion con la base de datos")
 		return err
 	}
+	defer closeDB() // Cierra la conexión solo si se abrió correctamente
 
 	// Encrypt the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
