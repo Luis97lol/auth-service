@@ -38,7 +38,7 @@ func ValidateUser(oid, username, password string) (bool, error) {
 	}
 
 	var storedPassword string
-	err := db.QueryRow("SELECT password FROM users WHERE oid=$1, username=$2", oid, username).Scan(&storedPassword)
+	err := db.QueryRow("SELECT password FROM credentials WHERE oid=$1, username=$2", oid, username).Scan(&storedPassword)
 	if err != nil {
 		println("Error al consultar usuario: ", err.Error())
 		if err == sql.ErrNoRows {
@@ -76,7 +76,7 @@ func InsertUser(oid, username, password string) error {
 	}
 
 	// Insert the new user into the database
-	_, err = db.Exec("INSERT INTO users (oid, username, password) VALUES ($1, $2, $3)", oid, username, hashedPassword)
+	_, err = db.Exec("INSERT INTO credentials (oid, username, password) VALUES ($1, $2, $3)", oid, username, hashedPassword)
 	if err != nil {
 		println("Error al insertar usuario: ", err.Error())
 		return err
