@@ -26,16 +26,21 @@ func GetInstance() *redis.Client {
 }
 
 func GenerateToken(userId string) (string, error) {
-	token := fmt.Sprintf("token:%s", auth.GenerateJWT(auth.User{Id: userId}))
-	err := GetInstance().Set(context.Background(), token, userId, 5*time.Minute).Err()
+	token := auth.GenerateJWT(auth.User{Id: userId})
+	err := GetInstance().Set(context.Background(), fmt.Sprintf("auth_token:%s", token), userId, 5*time.Minute).Err()
 	if err != nil {
 		return "", err
+	}
+	err2 := GetInstance().Set(context.Background(), fmt.Sprintf("auth_user:%s", userId), token, 5*time.Minute).Err()
+	if err2 != nil {
+		GetInstance().Del(context.Background(), fmt.Sprintf("auth_token:%s", token))
+		return "", err2
 	}
 	return token, nil
 }
 
 func ValidateToken(token string) (string, error) {
-	val, err := GetInstance().Get(context.Background(), token).Result()
+	val, err := GetInstance().Get(context.Background(), fmt.Sprintf("auth_token:%s", token)).Result()
 	if err == redis.Nil {
 		return "", fmt.Errorf("token not found")
 	} else if err != nil {

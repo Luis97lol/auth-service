@@ -36,21 +36,19 @@ func closeDB() {
 	}
 }
 
-func ValidateUser(oid, username, password string) (bool, error) {
+func ValidateUser(oid, username, password string) (string, error) {
 	if err := open(); err != nil {
 		fmt.Printf("Error initializing database connection: %s", err.Error())
-		return false, err
+		return "", err
 	}
 	defer closeDB() // Cierra la conexión solo si se abrió correctamente
 
 	var storedPassword string
-	err := db.QueryRow("SELECT password FROM credentials WHERE oid=$1 AND username=$2", oid, username).Scan(&storedPassword)
+	var userId string
+	err := db.QueryRow("SELECT id, password FROM credentials WHERE oid=$1 AND username=$2", oid, username).Scan(&userId, &storedPassword)
 	if err != nil {
 		println("Error al consultar usuario: ", err.Error())
-		if err == sql.ErrNoRows {
-			return false, nil
-		}
-		return false, err
+		return "", err
 	}
 
 	// Compare the provided password with the stored hashed password
@@ -58,35 +56,35 @@ func ValidateUser(oid, username, password string) (bool, error) {
 	if err != nil {
 		println("Error al comparar hashes: ", err.Error())
 		// Password does not match
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			return false, nil
-		}
-		return false, err
+		return "", err
 	}
 
 	// Password matches
-	return true, nil
+	return userId, nil
 }
 
-func InsertUser(oid, username, password string) error {
+func InsertUser(oid, username, password string) (string, error) {
 	if err := open(); err != nil {
 		fmt.Errorf("No se pudo establecer conexion con la base de datos")
-		return err
+		return "", err
 	}
 	defer closeDB() // Cierra la conexión solo si se abrió correctamente
 
 	// Encrypt the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return "", err
 	}
-
 	// Insert the new user into the database
-	_, err = db.Exec("INSERT INTO credentials (oid, username, password) VALUES ($1, $2, $3)", oid, username, hashedPassword)
+	var id string
+	err = db.QueryRow(
+		"INSERT INTO credentials (oid, username, password) VALUES ($1, $2, $3) RETURNING id",
+		oid, username, hashedPassword,
+	).Scan(&id)
 	if err != nil {
 		println("Error al insertar usuario: ", err.Error())
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
