@@ -33,6 +33,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if token, err := redis.ValidateUser(userId); err != nil {
+		response := map[string]string{"token": token}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
 	// Generate JWT token and save to Redis
 	token, err := redis.GenerateToken(userId)
 	if err != nil {

@@ -48,3 +48,13 @@ func ValidateToken(token string) (string, error) {
 	}
 	return val, nil
 }
+
+func ValidateUser(userId string) (string, error) {
+	val, err := GetInstance().Get(context.Background(), fmt.Sprintf("auth_user:%s", userId)).Result()
+	if err == redis.Nil {
+		return "", fmt.Errorf("user not found")
+	} else if err != nil {
+		return "", err
+	}
+	return val, nil
+}
