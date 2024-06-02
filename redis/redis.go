@@ -40,9 +40,13 @@ func GenerateToken(userId string) (string, error) {
 }
 
 func RenewToken(token string, userId string) (string, error) {
+	DeleteToken(token, userId)
+	return GenerateToken(userId)
+}
+
+func DeleteToken(token string, userId string) {
 	GetInstance().Del(context.Background(), fmt.Sprintf("auth_token:%s", token))
 	GetInstance().Del(context.Background(), fmt.Sprintf("auth_user:%s", userId))
-	return GenerateToken(userId)
 }
 
 func ValidateToken(token string) (string, error) {

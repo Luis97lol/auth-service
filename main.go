@@ -22,6 +22,7 @@ func main() {
 	r.HandleFunc("/register", handlers.RegisterHandler).Methods("POST")
 	r.HandleFunc("/validate", handlers.ValidateHandler).Methods("GET")
 	r.HandleFunc("/renew", handlers.RenewHandler).Methods("GET")
+	r.HandleFunc("/logout", handlers.LogoutHandler).Methods("GET")
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
