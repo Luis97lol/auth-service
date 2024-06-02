@@ -84,6 +84,7 @@ func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate token against Redis
 	username, err := redis.ValidateToken(token)
 	if err != nil {
+		println("Error validating token: ", err.Error())
 		writeJsonError(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
