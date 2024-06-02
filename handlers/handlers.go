@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/Luis97lol/auth-service/database"
 	"github.com/Luis97lol/auth-service/redis"
@@ -10,7 +11,7 @@ import (
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	authtoken := r.Header.Get("Authorization")
+	authtoken := extractToken(r.Header.Get("Authorization"))
 	if authtoken != "" {
 		writeJsonError(w, "Token provided", http.StatusBadRequest)
 		return
@@ -47,7 +48,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
-	authtoken := r.Header.Get("Authorization")
+	authtoken := extractToken(r.Header.Get("Authorization"))
 	if authtoken != "" {
 		writeJsonError(w, "Token provided", http.StatusBadRequest)
 		return
@@ -75,7 +76,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 	// Read token from Authorization header
-	token := r.Header.Get("Authorization")
+	token := extractToken(r.Header.Get("Authorization"))
 	if token == "" {
 		writeJsonError(w, "Token not provided", http.StatusBadRequest)
 		return
@@ -92,6 +93,17 @@ func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 	// Respond with username
 	response := map[string]string{"user": userId}
 	json.NewEncoder(w).Encode(response)
+}
+
+func extractToken(authHeader string) string {
+	if authHeader == "" {
+		return authHeader
+	}
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+		return parts[1]
+	}
+	return authHeader
 }
 
 func writeJsonError(w http.ResponseWriter, message string, statusCode int) {

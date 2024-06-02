@@ -42,10 +42,8 @@ func GenerateToken(userId string) (string, error) {
 func ValidateToken(token string) (string, error) {
 	val, err := GetInstance().Get(context.Background(), fmt.Sprintf("auth_token:%s", token)).Result()
 	if err == redis.Nil {
-		println("Token not Found")
 		return "", fmt.Errorf("token not found")
 	} else if err != nil {
-		println("Error validating with Redis: ", err.Error())
 		return "", err
 	}
 	return val, nil
