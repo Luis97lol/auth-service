@@ -33,7 +33,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if token, err := redis.ValidateUser(userId); err != nil {
+	if token, err := redis.ValidateUser(userId); err == nil {
 		response := map[string]string{"token": token}
 		json.NewEncoder(w).Encode(response)
 		return
