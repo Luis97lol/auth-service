@@ -39,6 +39,12 @@ func GenerateToken(userId string) (string, error) {
 	return token, nil
 }
 
+func RenewToken(token string, userId string) (string, error) {
+	GetInstance().Del(context.Background(), fmt.Sprintf("auth_token:%s", token))
+	GetInstance().Del(context.Background(), fmt.Sprintf("auth_user:%s", userId))
+	return GenerateToken(userId)
+}
+
 func ValidateToken(token string) (string, error) {
 	val, err := GetInstance().Get(context.Background(), fmt.Sprintf("auth_token:%s", token)).Result()
 	if err == redis.Nil {

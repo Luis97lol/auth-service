@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Conf Folder
+conf
+
+# Environment files
+*.env
