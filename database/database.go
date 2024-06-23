@@ -65,7 +65,7 @@ func ValidateUser(oid, username, password string) (string, error) {
 
 func InsertUser(oid, username, password string) (string, error) {
 	if err := open(); err != nil {
-		fmt.Errorf("No se pudo establecer conexion con la base de datos")
+		println("No se pudo establecer conexion con la base de datos")
 		return "", err
 	}
 	defer closeDB() // Cierra la conexión solo si se abrió correctamente
@@ -87,4 +87,16 @@ func InsertUser(oid, username, password string) (string, error) {
 	}
 
 	return id, nil
+}
+
+func DeleteUser(oid, userId string) error {
+	if err := open(); err != nil {
+		println("No se pudo establecer conexion con la base de datos")
+		return err
+	}
+	defer closeDB() // Cierra la conexión solo si se abrió correctamente
+
+	_, err := db.Exec("DELETE FROM credentials WHERE oid = $1 AND id = $2", oid, userId)
+
+	return err
 }

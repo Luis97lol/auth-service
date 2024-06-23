@@ -23,6 +23,7 @@ func main() {
 	r.HandleFunc("/validate", handlers.ValidateHandler).Methods("GET")
 	r.HandleFunc("/renew", handlers.RenewHandler).Methods("GET")
 	r.HandleFunc("/logout", handlers.LogoutHandler).Methods("GET")
+	r.HandleFunc("/org/{oid}/user/{userId}", handlers.DeleteHandler).Methods("DELETE")
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
