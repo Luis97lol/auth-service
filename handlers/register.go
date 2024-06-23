@@ -31,6 +31,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond with token
-	response := map[string]string{"response": userId}
+	response := map[string]string{"uuid": userId}
 	json.NewEncoder(w).Encode(response)
 }
