@@ -14,9 +14,20 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	oid := vars["oid"]
 	userId := vars["userId"]
 
-	token := extractToken(r.Header.Get("Authorization"))
+	admintoken := extractToken(r.Header.Get("Authorization"))
+	if admintoken == "" {
+		writeJsonError(w, "Token not provided", http.StatusBadRequest)
+		return
+	}
+
 	// Validate token against Redis
-	_, err := redis.ValidateToken(token)
+	_, err := redis.ValidateToken(admintoken)
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"error": "Token not valid"})
+		return
+	}
+
+	token, err := redis.ValidateUser(userId)
 	if err == nil {
 		redis.DeleteToken(token, userId)
 	}
@@ -24,6 +35,6 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	database.DeleteUser(oid, userId)
 
 	// Respond with username
-	response := map[string]string{"response": "Session closed successfully"}
+	response := map[string]string{"response": "User deleted successfully"}
 	json.NewEncoder(w).Encode(response)
 }
