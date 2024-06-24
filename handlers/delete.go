@@ -23,7 +23,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate token against Redis
 	_, err := redis.ValidateToken(admintoken)
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]string{"error": "Token not valid"})
+		writeJsonError(w, "Token not valid", http.StatusBadRequest)
 		return
 	}
 
